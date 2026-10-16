@@ -38,16 +38,24 @@ export default function TagAgentPanel() {
 
   const runM = useMutation({
     mutationFn: async (question: string) => {
-      const res = await tagApi.post<TagQueryResponse>("/tag/query", {
-        question,
-        max_results: 5,
-        max_pages_to_read: 3
-      });
+      const res = await tagApi.post<TagQueryResponse>(
+        "/tag/query",
+        {
+          question,
+          max_results: 5,
+          max_pages_to_read: 3
+        },
+        { timeout: 180_000 }
+      );
       return res.data;
     },
     onSuccess: (data) => setResp(data),
     onError: (e: any) =>
-      message.error(e?.response?.data?.detail || e?.message || "TAG query failed")
+      message.error(
+        e?.response?.data?.detail ||
+          (e?.code === "ECONNABORTED" ? "TAG query timeout" : e?.message) ||
+          "TAG query failed"
+      )
   });
 
   return (

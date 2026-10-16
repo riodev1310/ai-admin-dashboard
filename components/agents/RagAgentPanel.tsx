@@ -120,7 +120,11 @@ export default function RagAgentPanel() {
   const insertMutation = useMutation({
     mutationFn: async () => {
       const res =
-        await ragApi.post("/insert_file/");
+        await ragApi.post(
+          "/insert_file/",
+          undefined,
+          { timeout: 180_000 }
+        );
       return res.data;
     },
 
@@ -146,9 +150,12 @@ export default function RagAgentPanel() {
       });
     },
 
-    onError: () =>
+    onError: (e: any) =>
       message.error(
-        "Insert vector DB failed"
+        e?.response?.data?.detail ||
+          (e?.code === "ECONNABORTED"
+            ? "Insert vector DB timeout"
+            : "Insert vector DB failed")
       )
   });
 

@@ -17,12 +17,20 @@ export default function DagAgentPanel() {
 
   const runM = useMutation({
     mutationFn: async (question: string) => {
-      const res = await dagApi.post<DagResponse>("/query-database", { question });
+      const res = await dagApi.post<DagResponse>(
+        "/query-database",
+        { question },
+        { timeout: 180_000 }
+      );
       return res.data;
     },
     onSuccess: (data) => setResult(data),
     onError: (e: any) =>
-      message.error(e?.response?.data?.detail || e?.message || "DAG query failed")
+      message.error(
+        e?.response?.data?.detail ||
+          (e?.code === "ECONNABORTED" ? "DAG query timeout" : e?.message) ||
+          "DAG query failed"
+      )
   });
 
   return (
@@ -94,7 +102,9 @@ export default function DagAgentPanel() {
             </Typography.Title>
             <Card style={{ borderRadius: 12 }}>
               <pre style={{ margin: 0, whiteSpace: "pre-wrap" }}>
-                {JSON.stringify(result.query_result, null, 2)}
+                {typeof result.query_result === "string"
+                  ? result.query_result
+                  : JSON.stringify(result.query_result, null, 2)}
               </pre>
             </Card>
           </>
