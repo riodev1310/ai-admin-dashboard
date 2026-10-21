@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, Typography } from "antd";
+import { Menu } from "antd";
 import {
   DashboardOutlined,
   DatabaseOutlined,

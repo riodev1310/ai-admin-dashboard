@@ -5,9 +5,10 @@ import { App, Button, Card, Divider, Form, Input, Space, Typography } from "antd
 import { CodeOutlined } from "@ant-design/icons";
 import { useMutation } from "@tanstack/react-query";
 import { dagApi } from "@/lib/apiClients";
+import { apiError } from "@/lib/errors";
 
 type DagResponse = {
-  query_result: any;
+  query_result: string;
   sql_query: string;
 };
 
@@ -25,12 +26,7 @@ export default function DagAgentPanel() {
       return res.data;
     },
     onSuccess: (data) => setResult(data),
-    onError: (e: any) =>
-      message.error(
-        e?.response?.data?.detail ||
-          (e?.code === "ECONNABORTED" ? "DAG query timeout" : e?.message) ||
-          "DAG query failed"
-      )
+    onError: (error: unknown) => message.error(apiError(error, "DAG query failed"))
   });
 
   return (
@@ -51,7 +47,7 @@ export default function DagAgentPanel() {
       </Card>
 
       <Card style={{ borderRadius: 16 }}>
-        <Form layout="vertical" onFinish={(v: any) => runM.mutate(v.question)}>
+        <Form<{ question: string }> layout="vertical" onFinish={(v) => runM.mutate(v.question)}>
           <Form.Item
             label="Business Question"
             name="question"

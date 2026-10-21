@@ -17,6 +17,7 @@ import { LinkOutlined, ReloadOutlined, SearchOutlined } from "@ant-design/icons"
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { tagApi } from "@/lib/apiClients";
 import type { TagQueryResponse, TagSite } from "@/lib/types";
+import { apiError } from "@/lib/errors";
 
 export default function TagAgentPanel() {
   const { message } = App.useApp();
@@ -50,12 +51,7 @@ export default function TagAgentPanel() {
       return res.data;
     },
     onSuccess: (data) => setResp(data),
-    onError: (e: any) =>
-      message.error(
-        e?.response?.data?.detail ||
-          (e?.code === "ECONNABORTED" ? "TAG query timeout" : e?.message) ||
-          "TAG query failed"
-      )
+    onError: (error: unknown) => message.error(apiError(error, "TAG query failed"))
   });
 
   return (
@@ -136,7 +132,7 @@ export default function TagAgentPanel() {
           Ask TAG (Web Search)
         </Typography.Title>
 
-        <Form layout="vertical" onFinish={(v: any) => runM.mutate(v.question)}>
+        <Form<{ question: string }> layout="vertical" onFinish={(v) => runM.mutate(v.question)}>
           <Form.Item
             label="Question"
             name="question"

@@ -118,7 +118,7 @@ export function UsageCharts() {
 
           <div style={{ height: 170 }}>
             <Line
-              data={lineData as any}
+              data={lineData}
               options={{
                 responsive: true,
                 maintainAspectRatio: false,

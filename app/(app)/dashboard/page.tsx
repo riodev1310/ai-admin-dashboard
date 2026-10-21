@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { Card, Col, Row, Select, DatePicker, Typography, Statistic, Spin, App } from "antd";
+import { Alert, Card, Col, Row, Select, DatePicker, Typography, Statistic, Spin, App } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import { useQuery } from "@tanstack/react-query";
 import { dataApi } from "@/lib/apiClients";
@@ -94,7 +94,7 @@ export default function DashboardPage() {
     enabled: !!symbol
   });
 
-  const rows = stockQ.data ?? [];
+  const rows = useMemo(() => stockQ.data ?? [], [stockQ.data]);
   const summary = summaryQ.data;
 
   // const closeLine = useMemo(() => {
@@ -201,11 +201,15 @@ export default function DashboardPage() {
         </Row>
       </Card>
 
+      {symbolsQ.isError || summaryQ.isError || stockQ.isError ? (
+        <Alert type="error" showIcon message="Không thể tải dữ liệu chứng khoán. Kiểm tra Data Server và kết nối." />
+      ) : null}
+
       {loading ? (
         <div style={{ display: "grid", placeItems: "center", height: 260 }}>
           <Spin size="large" />
         </div>
-      ) : (
+      ) : symbolsQ.isError || summaryQ.isError || stockQ.isError ? null : (
         <>
           <Row gutter={[16, 16]}>
             <Col xs={24} md={6}>

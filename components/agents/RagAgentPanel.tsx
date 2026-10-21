@@ -26,6 +26,7 @@ import {
 import type { UploadProps } from "antd";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { ragApi } from "@/lib/apiClients";
+import { apiError } from "@/lib/errors";
 
 /* ================= TYPES ================= */
 
@@ -55,7 +56,7 @@ export default function RagAgentPanel() {
     useState(false);
 
   const [insertResult, setInsertResult] =
-    useState<any>(null);
+    useState<{ message?: string; processed?: string[] } | null>(null);
 
   /* ================= LIST FILES ================= */
 
@@ -103,12 +104,9 @@ export default function RagAgentPanel() {
 
           onSuccess?.({});
           filesQ.refetch();
-        } catch (e: any) {
-          message.error(
-            e?.response?.data?.detail ||
-              "Upload failed"
-          );
-          onError?.(e);
+        } catch (error: unknown) {
+          message.error(apiError(error, "Upload failed"));
+          onError?.(error instanceof Error ? error : new Error("Upload failed"));
         }
       }
     }),
@@ -150,13 +148,7 @@ export default function RagAgentPanel() {
       });
     },
 
-    onError: (e: any) =>
-      message.error(
-        e?.response?.data?.detail ||
-          (e?.code === "ECONNABORTED"
-            ? "Insert vector DB timeout"
-            : "Insert vector DB failed")
-      )
+    onError: (error: unknown) => message.error(apiError(error, "Insert vector DB failed"))
   });
 
   /* ================= QUERY ================= */
@@ -166,13 +158,15 @@ export default function RagAgentPanel() {
       const res =
         await ragApi.post<RagQueryResponse>(
           "/rag_query/",
-          { text }
+          { text },
+          { timeout: 180_000 }
         );
       return res.data;
     },
 
     onSuccess: (data) =>
-      setAnswer(data)
+      setAnswer(data),
+    onError: () => message.error("Không thể truy vấn tài liệu. Vui lòng thử lại.")
   });
 
   /* ================================================= */
@@ -316,8 +310,8 @@ export default function RagAgentPanel() {
           Ask RAG
         </Typography.Title>
 
-        <Form
-          onFinish={(v: any) =>
+        <Form<{ text: string }>
+          onFinish={(v) =>
             queryMutation.mutate(v.text)
           }
         >

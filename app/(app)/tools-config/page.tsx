@@ -5,6 +5,7 @@ import { App, Button, Card, Form, Input, Space, Table, Tag, Typography } from "a
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type { TagSite } from "@/lib/types";
 import { tagApi } from "@/lib/apiClients";
+import { apiError } from "@/lib/errors";
 
 export default function ToolsConfigPage() {
   const { message, modal } = App.useApp(); // ✅ lấy modal từ context
@@ -29,8 +30,8 @@ export default function ToolsConfigPage() {
       form.resetFields();
       await sitesQ.refetch();
     },
-    onError: (e: any) => {
-      message.error(e?.response?.data?.detail || e?.message || "Add site failed");
+    onError: (error: unknown) => {
+      message.error(apiError(error, "Add site failed"));
     }
   });
 
@@ -43,8 +44,8 @@ export default function ToolsConfigPage() {
       message.success("Deleted ✅");
       await sitesQ.refetch();
     },
-    onError: (e: any) => {
-      message.error(e?.response?.data?.detail || e?.message || "Delete failed");
+    onError: (error: unknown) => {
+      message.error(apiError(error, "Delete failed"));
     },
     onSettled: () => setDeleting(null)
   });

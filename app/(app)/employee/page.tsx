@@ -1,8 +1,7 @@
 "use client";
 
 import React from "react";
-import { Card, Col, Row, Typography, Select } from "antd";
-import { TeamOutlined, UserOutlined } from "@ant-design/icons";
+import { Card, Typography, Select } from "antd";
 import { EmployeeTable, Employee } from "@/components/hr/EmployeeTable";
 
 const mockEmployees: Employee[] = [
@@ -64,11 +63,6 @@ export default function HRDashboardPage() {
           (e) => e.department === department
         );
 
-  const total = mockEmployees.length;
-  const active = mockEmployees.filter(
-    (e) => e.status === "active"
-  ).length;
-
   return (
     <div className="space-y-8">
       {/* HEADER */}
@@ -77,34 +71,9 @@ export default function HRDashboardPage() {
           Quản lý nhân sự
         </Typography.Title>
         <Typography.Text type="secondary">
-          Dashboard quản lý nhân sự doanh nghiệp
+          Dữ liệu minh họa; trang này chưa kết nối hệ thống nhân sự.
         </Typography.Text>
       </div>
-
-      {/* METRICS */}
-      {/* <Row gutter={[32, 32]}>
-        <Col xs={24} md={12}>
-          <Card>
-            <Typography.Title level={4}>
-              <TeamOutlined /> Tổng nhân sự
-            </Typography.Title>
-            <Typography.Title>
-              {total}
-            </Typography.Title>
-          </Card>
-        </Col>
-
-        <Col xs={24} md={12}>
-          <Card>
-            <Typography.Title level={4}>
-              <UserOutlined /> Đang hoạt động
-            </Typography.Title>
-            <Typography.Title>
-              {active}
-            </Typography.Title>
-          </Card>
-        </Col>
-      </Row> */}
 
       {/* FILTER */}
       <Card>

@@ -27,6 +27,7 @@ import {
 } from "@ant-design/icons";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { apiError } from "@/lib/errors";
 
 type FeatureToggles = {
   rag: boolean;
@@ -38,7 +39,7 @@ type RagChunk = { source: string; score?: number; text: string };
 type ToolCall = { name: string; endpoint?: string; status?: string; output?: string };
 
 type DagStep = { title: string; detail?: string; status?: "ok" | "warn" | "error" };
-type DagResultRow = Record<string, any>;
+type DagResultRow = Record<string, unknown>;
 
 type AiResponse = {
   answer: string;
@@ -225,7 +226,7 @@ export function ChatBox() {
         return res.data as AiResponse;
       }
     },
-    onError: (err: any) => {
+    onError: (err: unknown) => {
       setHistory((h) => [
         ...h,
         {
@@ -233,7 +234,7 @@ export function ChatBox() {
           content: (
             <div className="text-red-300">
               Không gọi được backend. Bạn vẫn có thể test UI. Lỗi:{" "}
-              <span className="opacity-80">{err?.message ?? "unknown"}</span>
+              <span className="opacity-80">{apiError(err, "unknown")}</span>
             </div>
           )
         }
@@ -278,7 +279,7 @@ export function ChatBox() {
       // ---------- DAG table rendering ----------
       const dagColsFromBackend =
         data.dag?.columns?.length
-          ? (data.dag.columns as any[])
+          ? data.dag.columns
           : data.dag?.rows?.length
             ? Object.keys(data.dag.rows[0] ?? {}).map((k) => ({
                 key: k,
@@ -287,7 +288,7 @@ export function ChatBox() {
               }))
             : [];
 
-      const dagColumns: ColumnsType<any> = dagColsFromBackend.map((c: any) => ({
+      const dagColumns: ColumnsType<DagResultRow> = dagColsFromBackend.map((c) => ({
         title: c.title ?? c.key ?? c.dataIndex,
         dataIndex: c.dataIndex ?? c.key,
         key: c.key ?? c.dataIndex
@@ -507,7 +508,7 @@ export function ChatBox() {
               <Typography.Text className="opacity-80">DAG output</Typography.Text>
               <Segmented
                 value={dagOutput}
-                onChange={(v) => setDagOutput(v as any)}
+                onChange={(v) => setDagOutput(v as "sql" | "table" | "both")}
                 options={[
                   { label: "SQL", value: "sql" },
                   { label: "Table", value: "table" },

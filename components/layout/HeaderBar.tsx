@@ -5,6 +5,7 @@ import { Avatar, Button, Dropdown, Input, Space, Typography } from "antd";
 import { MenuFoldOutlined, MenuUnfoldOutlined, UserOutlined, LogoutOutlined } from "@ant-design/icons";
 import { useAuthStore } from "@/lib/auth/store";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function HeaderBar({
   collapsed,
@@ -14,6 +15,7 @@ export function HeaderBar({
   onToggle: () => void;
 }) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
 
@@ -54,6 +56,7 @@ export function HeaderBar({
               label: "Đăng xuất",
               onClick: () => {
                 logout();
+                queryClient.clear();
                 router.replace("/login");
               }
             }

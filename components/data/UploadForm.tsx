@@ -6,6 +6,7 @@ import { InboxOutlined, CloudUploadOutlined } from "@ant-design/icons";
 import type { UploadProps } from "antd";
 import { useMutation } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { apiError } from "@/lib/errors";
 
 const { Dragger } = Upload;
 
@@ -27,8 +28,8 @@ export function UploadForm({ onUploaded }: { onUploaded?: () => void }) {
       message.success("Upload thành công");
       onUploaded?.();
     },
-    onError: (e: any) => {
-      message.error(e?.message ?? "Upload thất bại");
+    onError: (error: unknown) => {
+      message.error(apiError(error, "Upload thất bại"));
     }
   });
 
@@ -36,7 +37,7 @@ export function UploadForm({ onUploaded }: { onUploaded?: () => void }) {
     name: "file",
     multiple: false,
     beforeUpload: async (file) => {
-      await m.mutateAsync(file as any as File);
+      await m.mutateAsync(file);
       return Upload.LIST_IGNORE; // chặn antd tự upload
     }
   };

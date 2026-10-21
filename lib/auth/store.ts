@@ -27,6 +27,6 @@ export function initAuthFromStorage() {
   const token = getAccessToken();
   if (!token) return { token: null, user: null };
 
-  // For demo: user info might not exist; will be fetched later if needed.
+  // The session is validated with the auth service before protected UI is shown.
   return { token, user: null };
 }
